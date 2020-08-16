@@ -10,6 +10,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 symbols = pd.read_csv('forex.csv')
+del symbols
 ticks = symbols.Symbol.tolist()
 
 colors = {
@@ -50,4 +51,4 @@ def update_graph(ticker):
 
 
 if __name__ == '__main__':
-    app.run_server(port=8080)
+    app.run_server()
