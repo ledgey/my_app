@@ -10,8 +10,7 @@ import CVAE as cvae
 encoder, _,_ =  cvae.build_cvae()
 encoder.load_weights('encoder.h5')
 ngb = pickle.load(open('ngboost.pkl', 'rb'))
-symbols = pd.read_csv('forex.csv')
-ticks = symbols.Symbol.tolist()
+
 
 
 def LagguerreRSI(data, gamma):
@@ -93,7 +92,7 @@ def transform(tmp):
     tmp['upper_bol'] = tmp['sma'] + (2*std)
     tmp['lower_bol'] = tmp['sma'] - (2*std)
     tmp['RSI_point8'] = tmp[['Close']].apply(LagguerreRSI, gamma = 0.8)
-    price_cols = ['Open','High', 'Low', 'Close', 'sma',  'upper_bol', 'lower_bol']
+
     return tmp.dropna()
 
 
@@ -125,67 +124,7 @@ def scale(pred_data, seq_length):
 
 def plotResults(results):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['upper_bol'],
-        name="upper_bol",
-        mode='lines'
 
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['lower_bol'],
-        name="lower_bol",
-        mode='lines'
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['sma'],
-        name="sma",
-        mode='lines'
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['pred'],
-        name="pred",
-        line = dict(color='black', width=2),
-        yaxis="y2"
-    ))
-
-
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['pred']+results['prob'],
-        name="pred_upper",
-        line = dict(color='black', width=1, dash='dot'),
-        yaxis="y2"
-    ))
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['pred']-results['prob'],
-        name="pred_lower",
-        line = dict(color='black', width=1, dash='dot'),
-        yaxis="y2"
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['macd'],
-        name="macd",
-        line = dict(color='red', width=2),
-        yaxis="y3"
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=results.index,
-        y=results['macd_signal'],
-        name="macd_signal",
-        line = dict(color='blue', width=2),
-        yaxis="y3"
-    ))
     # Add traces
     fig.add_trace(go.Candlestick(x=results.index,
                     open=results['Open'],
