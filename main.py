@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import helper_functions as hf
-import pandas as pd
 
 import flask
 
@@ -13,6 +12,8 @@ server = flask.Flask(__name__) # define flask app.server
 
 
 app = dash.Dash(__name__, server=server)
+app.scripts.config.serve_locally = True
+app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"})
 
 
 ticks = ['GBPUSD=X', 'GBPEUR=X', 'EURUSD=X', 'GBPJPY=X', 'JPY=X', 'GBP=X', 'GBPAUD=X', 'GBPBRL=X', 'GBPCAD=X', 'GBPCHF=X']
