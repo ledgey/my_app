@@ -14,9 +14,8 @@ server = flask.Flask(__name__) # define flask app.server
 
 app = dash.Dash(__name__, server=server)
 
-symbols = pd.read_csv('forex.csv')
-del symbols
-ticks = symbols.Symbol.tolist()
+
+ticks = ['GBPUSD=X', 'GBPEUR=X', 'EURUSD=X', 'GBPJPY=X', 'JPY=X', 'GBP=X', 'GBPAUD=X', 'GBPBRL=X', 'GBPCAD=X', 'GBPCHF=X']
 
 colors = {
     'background': '#111111',
