@@ -7,9 +7,9 @@ import helper_functions as hf
 import flask
 
 
-
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 server = flask.Flask(__name__) # define flask app.server
-app = dash.Dash(__name__, server=server)
+app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
 
 
 

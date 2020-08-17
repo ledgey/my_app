@@ -122,9 +122,69 @@ def scale(pred_data, seq_length):
     return obs_pred, idxs, dts
 
 
-def plotResults(results):
+def plotResults(results, ticker):
     fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['upper_bol'],
+        name="upper_bol",
+        mode='lines'
 
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['lower_bol'],
+        name="lower_bol",
+        mode='lines'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['sma'],
+        name="sma",
+        mode='lines'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['pred'],
+        name="pred",
+        line = dict(color='black', width=2),
+        yaxis="y2"
+    ))
+
+
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['pred']+results['prob'],
+        name="pred_upper",
+        line = dict(color='black', width=1, dash='dot'),
+        yaxis="y2"
+    ))
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['pred']-results['prob'],
+        name="pred_lower",
+        line = dict(color='black', width=1, dash='dot'),
+        yaxis="y2"
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['macd'],
+        name="macd",
+        line = dict(color='red', width=2),
+        yaxis="y3"
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=results.index,
+        y=results['macd_signal'],
+        name="macd_signal",
+        line = dict(color='blue', width=2),
+        yaxis="y3"
+    ))
     # Add traces
     fig.add_trace(go.Candlestick(x=results.index,
                     open=results['Open'],
@@ -132,11 +192,23 @@ def plotResults(results):
                     low=results['Low'],
                     close=results['Close']))
 
+
+
     fig.update_layout(
-        title='Trace',
+        title=ticker,
         xaxis_rangeslider_visible=False,
+        xaxis=dict(
+            domain=[0, 0.8]
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
         yaxis=dict(
-            title="yaxis title",
+            title="Price'",
             titlefont=dict(
                 color="#1f77b4"
             ),
@@ -145,21 +217,32 @@ def plotResults(results):
             )
         ),
         yaxis2=dict(
-            title="Pred Slope",
+            title="Slope",
             titlefont=dict(
                 color="#d62728"
             ),
             tickfont=dict(
                 color="#d62728"
             ),
-            overlaying='y',
-            anchor="free",
+            anchor="x",
+            overlaying="y",
             side="right"
         ),
-        yaxis3={'title': "MACD", 'overlaying': 'y', 'anchor': "free", 'side': "right"})
+        yaxis3=dict(
+            title="MACD",
+            titlefont=dict(
+                color="#9467bd"
+            ),
+            tickfont=dict(
+                color="#9467bd"
+            ),
+            anchor="free",
+            overlaying="y",
+            side="right",
+            position=0.9
+        ))
 
     return fig
-
 
 import plotly.figure_factory as ff
 
@@ -186,7 +269,7 @@ def plotNormal(mu, sigma):
     return fig
 
 
-def runPrediction(tick, seq_length=128, lookback = '1d', interval='5m', tz = 'US/Eastern'):
+def runPrediction(tick, seq_length=128, lookback = '3d', interval='5m', tz = 'US/Eastern'):
     df = getData(tick, lookback, interval, tz)
     df = transform(df)
     x, idx, dts = scale(df, seq_length)
@@ -197,11 +280,10 @@ def runPrediction(tick, seq_length=128, lookback = '1d', interval='5m', tz = 'US
     gbpyn = pd.DataFrame(predDict)
     gbpyn.index = pd.DatetimeIndex(gbpyn['times'])
     results = df.join(gbpyn)
-    print(results.tail(5))
     dist = results[['pred', 'prob']].iloc[-1].values
     # print(dist)
     dist = plotNormal(dist[0], dist[1])
-    graph = plotResults(results.dropna())
+    graph = plotResults(results.dropna(), tick)
     last_time = results.index.max().strftime('%Y-%m-%d %H:%M:%S')
     return graph, dist, last_time
 
